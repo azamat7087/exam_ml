@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'find_photo',
+    'background_task',
 
 ]
 

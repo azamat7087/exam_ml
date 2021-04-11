@@ -17,9 +17,9 @@ admin.site.register(Images, ImagesAdmin)
 
 
 class GroupsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title',  'description', 'date_of_add',)
+    list_display = ('id', 'title', 'date_of_add',)
     list_display_links = ('title', 'id',)
-    search_fields = ('title',  'description',)
+    search_fields = ('title',)
     readonly_fields = ('id', 'date_of_add')
     ordering = ()
     filter_horizontal = ()

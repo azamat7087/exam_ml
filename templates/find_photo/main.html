@@ -15,8 +15,14 @@
 </div>
 
 <div>
-    <form action="{% url 'main' %}" method="post">
-        <p><input type="file" name="f">
+    {% if result %}
+         <h2>Введите данные!</h2>
+    {% endif %}
+    <form action="{% url 'main' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <p>Введите название: </p>
+        <p><input maxlength="25" size="40" name="name"></p>
+        <p><input type="file" name="image">
         <p><button type="submit" name="b"> Поиск </button></p>
     </form>
 </div>

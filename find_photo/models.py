@@ -48,7 +48,6 @@ class Images(models.Model):
 
 class Groups(models.Model):
     title = models.CharField(max_length=255, )
-    description = models.TextField()
     photo = models.ImageField(upload_to="find_photos")
     find_images = models.ManyToManyField(Images, related_name="group", blank=True, )
     date_of_add = models.DateTimeField(auto_now_add=True)
