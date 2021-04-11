@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Main</title>
+</head>
+<body>
+
+<div style="display: flex;">
+    {% for image in images %}
+        <div style="padding: 5px;">
+            <img style="max-height: 150px; max-width: 300px; " src="{{ image.image.url }}" alt="">
+        </div>
+    {% endfor %}
+</div>
+
+<div>
+    <form action="{% url 'main' %}" method="post">
+        <p><input type="file" name="f">
+        <p><button type="submit" name="b"> Поиск </button></p>
+    </form>
+</div>
+</body>
+</html>
