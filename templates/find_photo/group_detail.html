@@ -5,11 +5,11 @@
     <title>Group Detail</title>
 </head>
 <body>
-    {{ group.name }}
-
-    {% for image in group.images.all %}
-        <img src="{{ image.url }}" alt="">
-    {% endfor %}
-
+    <h1> {{ group.title }} </h1>
+    <p>
+        {% for image in group.find_images.all %}
+            <a href="/media/find_images/{{ image.image }}"><img style="max-width: 500px; max-height: 200px;" src="/media/find_images/{{ image.image }}" alt=""></a>
+        {% endfor %}
+    </p>
 </body>
 </html>

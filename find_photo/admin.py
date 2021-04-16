@@ -4,6 +4,19 @@ from .models import *
 
 
 class ImagesAdmin(admin.ModelAdmin):
+    list_display = ('id', 'image',)
+    list_display_links = ('id', 'image')
+    search_fields = ()
+    readonly_fields = ('id',)
+    ordering = ()
+    filter_horizontal = ()
+    fieldsets = ()
+
+
+admin.site.register(Images, ImagesAdmin)
+
+
+class GalleryAdmin(admin.ModelAdmin):
     list_display = ('id', 'image', 'date_of_add',)
     list_display_links = ('id', 'image')
     search_fields = ()
@@ -13,7 +26,7 @@ class ImagesAdmin(admin.ModelAdmin):
     fieldsets = ()
 
 
-admin.site.register(Images, ImagesAdmin)
+admin.site.register(Gallery, GalleryAdmin)
 
 
 class GroupsAdmin(admin.ModelAdmin):

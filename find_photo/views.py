@@ -1,5 +1,6 @@
 import time
-from django.shortcuts import render
+from django.db.utils import IntegrityError
+from django.shortcuts import render, redirect
 from django.views import View
 from .models import *
 import dlib
@@ -14,9 +15,14 @@ import threading
 # Create your views here.
 
 dirpath='media/image_base'
-resultpath='/home/azamat/PycharmProjects/Exam_Machine_learning/find_photo/find_photos/'
+resultpath='/home/azamat/PycharmProjects/Exam_Machine_learning/media/find_images/'
 obrazec='find.jpeg'
 vsego=0
+
+
+def get_id():
+    id = str(random.randint(1, 9999999999999999))
+    return id
 
 
 def getfilelist(dirpath):
@@ -52,12 +58,13 @@ def get_face_descriptors(filename, sp, face_rec, detector):
 
 
 # @background(schedule=5)
-def find_photos(image, group):
+def find_photos(image, group, request):
+    start = time.time()
     sp = dlib.shape_predictor("/home/azamat/PycharmProjects/Exam_Machine_learning/find_photo/shape_predictor_68_face_landmarks.dat")
     face_rec = dlib.face_recognition_model_v1('/home/azamat/PycharmProjects/Exam_Machine_learning/find_photo/dlib_face_recognition_resnet_model_v1.dat')
     detector = dlib.get_frontal_face_detector()
     min_distance = 2
-
+    name = group.title.replace(" ", '_')
     f1 = get_face_descriptors(image, sp, face_rec, detector)[0]
     files = getfilelist(dirpath)
     flag = 0
@@ -74,54 +81,51 @@ def find_photos(image, group):
                         print(euc_distance)
                         if euc_distance < 0.65:
                             print('Найдено лицо: ' + f)
-                            shutil.copyfile(f, resultpath + str(flag) + '.jpg')
+                            i = get_id()
+                            shutil.copyfile(f, resultpath + str(name) + str(i) + '.jpg')
             # except:
             #     print("Exception", )
             #     continue
     print("DONE")
-    onlyfiles = [f for f in listdir('/home/azamat/PycharmProjects/Exam_Machine_learning/find_photo/find_photos') if isfile(join('/home/azamat/PycharmProjects/Exam_Machine_learning/find_photo/find_photos', f))]
+    onlyfiles = [f for f in listdir('/home/azamat/PycharmProjects/Exam_Machine_learning/media/find_images') if isfile(join('/home/azamat/PycharmProjects/Exam_Machine_learning/media/find_images', f))]
 
     for f in onlyfiles:
-        image = Images.objects.create(image=f'/home/azamat/PycharmProjects/Exam_Machine_learning/find_photo/find_photos/{f}')
-        group.find_images.add(image)
+        if f.__contains__(name):
+            image = Images.objects.create()
+            image.image = f
+            image.save()
+            print(image.id, image.image)
+            group.find_images.add(image)
+            group.is_ready = True
     group.save()
+    print(time.time() - start)
 
 
 class Main(View):
     def post(self, request):
         images = Images.objects.all()
-
+        groups = Groups.objects.all()
         image = request.FILES.get('image')
         name = request.POST.get('name')
 
         if not image and not name:
-            # images = Images.objects.all()
-            return render(request, 'find_photo/main.html', context={'images': images, 'result': True, })
-        group = Groups.objects.create(photo=image, title=name,)
-        find_photos("/home/azamat/PycharmProjects/Exam_Machine_learning/" + group.photo.url, group)
-        print(group.photo)
-        # x = threading.Thread(target=find_photos, args=("/home/azamat/PycharmProjects/Exam_Machine_learning/" + group.photo.url,))
-        # x.setDaemon(True)
-        # x.start()
-        #
-        # print(x.is_alive())
+            return render(request, 'find_photo/main.html', context={'images': images, 'result': 'Введите название и фотографию', })
+        try:
+            group = Groups.objects.create(photo=image, title=name,)
+        except IntegrityError:
+            return render(request, 'find_photo/main.html', context={'images': images, 'result': 'Группа с таким названием уже существует', })
+        # find_photos("/home/azamat/PycharmProjects/Exam_Machine_learning/" + group.photo.url, group, request)
+        x = threading.Thread(target=find_photos, args=("/home/azamat/PycharmProjects/Exam_Machine_learning/" + group.photo.url, group, request))
+        x.setDaemon(True)
+        x.start()
 
-        # mypath = '/find_photos/'
-        # onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-        #
-        # for file in onlyfiles:
-        #     print(file)
-        #     group.find_images.add(file)
-        # group.save()
-        return render(request, 'find_photo/main.html', context={'images': images, })
-
-        # return render(request, 'find_photo/group_detail.html', context={'group': group})
+        return render(request, 'find_photo/please_wait.html', context={'images': images, 'groups': groups, })
 
     def get(self, request):
-        images = Images.objects.all()
+        images = Gallery.objects.all()
         groups = Groups.objects.all()
 
-        return render(request, 'find_photo/main.html', context={'images': images, })
+        return render(request, 'find_photo/main.html', context={'images': images, 'groups': groups, })
 
 
 class GroupDetail(View):

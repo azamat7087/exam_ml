@@ -6,17 +6,32 @@
 </head>
 <body>
 
+<h1>Галлерея</h1>
 <div style="display: flex;">
     {% for image in images %}
         <div style="padding: 5px;">
-            <img style="max-height: 150px; max-width: 300px; " src="{{ image.image.url }}" alt="">
+            <a href="{{ image.image.url }}"><img style="max-height: 150px; max-width: 300px; " src="{{ image.image.url }}" alt=""></a>
         </div>
+    {% endfor %}
+</div>
+
+<h1>Группы</h1>
+<div style="display: flex;">
+    {% for group in groups %}
+        {% if group.is_ready %}
+            <div style="padding: 5px;">
+                <a href="{% url 'group_detail' id=group.id %}">
+                    <p><h4>{{ group.title }}</h4></p>
+                    <p><img style="max-height: 150px; max-width: 300px; " src="{{ group.photo.url }}" alt=""></p>
+                </a>
+            </div>
+        {% endif %}
     {% endfor %}
 </div>
 
 <div>
     {% if result %}
-         <h2>Введите данные!</h2>
+         <h2>{{ result }}</h2>
     {% endif %}
     <form action="{% url 'main' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
