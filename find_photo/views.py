@@ -109,27 +109,27 @@ class Main(View):
         name = request.POST.get('name')
 
         if not image and not name:
-            return render(request, 'find_photo/main.html', context={'images': images, 'result': 'Введите название и фотографию', })
+            return render(request, 'find_photo_v2/FrontendExamML/index.html', context={'images': images, 'result': 'Введите название и фотографию', })
         try:
             group = Groups.objects.create(photo=image, title=name,)
         except IntegrityError:
-            return render(request, 'find_photo/main.html', context={'images': images, 'result': 'Группа с таким названием уже существует', })
+            return render(request, 'find_photo_v2/FrontendExamML/index.html', context={'images': images, 'result': 'Группа с таким названием уже существует', })
         # find_photos("/home/azamat/PycharmProjects/Exam_Machine_learning/" + group.photo.url, group, request)
         x = threading.Thread(target=find_photos, args=("/home/azamat/PycharmProjects/Exam_Machine_learning/" + group.photo.url, group, request))
         x.setDaemon(True)
         x.start()
 
-        return render(request, 'find_photo/please_wait.html', context={'images': images, 'groups': groups, })
+        return render(request, 'find_photo_v2/FrontendExamML/index.html', context={'images': images, 'groups': groups, })
 
     def get(self, request):
         images = Gallery.objects.all()
         groups = Groups.objects.all()
 
-        return render(request, 'find_photo/main.html', context={'images': images, 'groups': groups, })
+        return render(request, 'find_photo_v2/FrontendExamML/index.html', context={'images': images, 'groups': groups, })
 
 
 class GroupDetail(View):
     def get(self, request, id):
         group = Groups.objects.get(id=id)
 
-        return render(request, 'find_photo/group_detail.html', context={'group': group, })
+        return render(request, 'find_photo_v2/FrontendExamML/index2.html', context={'group': group, })
